@@ -1,0 +1,9 @@
+{
+  "name": "github-comment-editor",
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "font-awesome": "~4.2.0"
+  },
+  "devDependencies": {}
+}
