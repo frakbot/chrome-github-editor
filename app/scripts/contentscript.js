@@ -1,17 +1,17 @@
 'use strict';
 
-var genericStyleBuilder = function(selectedText, styleMatch, style) {
-  var regex = new RegExp('^' + styleMatch + '(.*)' + styleMatch + '$');
+var genericStyleBuilder = function(selectedText, styleMatchPre, styleMatchPost, stylePre, stylePost) {
+  var regex = new RegExp('^' + styleMatchPre + '(.*)' + styleMatchPost + '$');
   var isStyled = regex.exec(selectedText);
   var text;
   if (isStyled && isStyled.length === 2) {
     text = isStyled[1];
   } else {
-    text = style + selectedText + style;
+    text = stylePre + selectedText + stylePost;
   }
   return {
     text: text,
-    defaultSelection: style.length
+    defaultSelection: stylePre.length
   };
 };
 
@@ -30,32 +30,48 @@ var genericListBuilder = function(selectedText, bulletMatch, bullet) {
   }
   return {
     text: text,
-    defaultSelection: bullet.length
+    defaultSelection: bullet.length + 1
   };
+};
+
+var hotkeys = {
+  'ctrl+b': 'cge-bold',
+  'ctrl+i': 'cge-italic',
+  'ctrl+s': 'cge-strikethrough',
+  'alt+1': 'cge-h1',
+  'alt+2': 'cge-h2',
+  'alt+3': 'cge-h3',
+  'ctrl+q': 'cge-quote',
+  'ctrl+d': 'cge-code',
+  'ctrl+k': 'cge-link',
+  'ctrl+m': 'cge-image',
+  'ctrl+u': 'cge-unordered-list',
+  'ctrl+o': 'cge-ordered-list',
+  'ctrl+h': 'cge-check-list',
+  'ctrl+l': 'cge-horizontal-rule'
 };
 
 var listeners = {
   'cge-bold': function(selectedText) {
-    return genericStyleBuilder(selectedText, '\\*\\*', '**');
+    return genericStyleBuilder(selectedText, '\\*\\*', '\\*\\*', '**', '**');
   },
   'cge-italic': function(selectedText) {
-    return genericStyleBuilder(selectedText, '\\*', '*');
+    return genericStyleBuilder(selectedText, '\\*', '\\*', '*', '*');
   },
   'cge-strikethrough': function(selectedText) {
-    return genericStyleBuilder(selectedText, '~~', '~~');
+    return genericStyleBuilder(selectedText, '~~', '~~', '~~', '~~');
   },
   'cge-quote': function(selectedText) {
-    var isQuote = /^> (.*)$/i.exec(selectedText);
-    var text;
-    if (isQuote && isQuote.length === 2) {
-      text = isQuote[1];
-    } else {
-      text = '> ' + selectedText;
-    }
-    return {
-      text: text,
-      defaultSelection: 2
-    };
+    return genericStyleBuilder(selectedText, '> ', '', '> ', '');
+  },
+  'cge-h1': function(selectedText) {
+    return genericStyleBuilder(selectedText, '\\#{1} ', '', '# ', '');
+  },
+  'cge-h2': function(selectedText) {
+    return genericStyleBuilder(selectedText, '\\#{2} ', '', '## ', '');
+  },
+  'cge-h3': function(selectedText) {
+    return genericStyleBuilder(selectedText, '\\#{3} ', '', '### ', '');
   },
   'cge-code': function(selectedText) {
     var isMultiCode = /^```\n((.|\n)*)\n```$/m.exec(selectedText);
@@ -74,7 +90,7 @@ var listeners = {
     }
     return {
       text: text,
-      defaultSelection: 2
+      defaultSelection: 1
     };
   },
   'cge-link': function(selectedText) {
@@ -92,6 +108,23 @@ var listeners = {
       selectionStart: selectionStart,
       selectionEnd: selectionEnd,
       defaultSelection: 3
+    };
+  },
+  'cge-image': function(selectedText) {
+    var isLink = /^\!\[(.*)\]\(.*\)$/i.exec(selectedText);
+    var text, selectionStart, selectionEnd;
+    if (isLink && isLink.length === 2) {
+      text = isLink[1];
+    } else {
+      text = '![' + selectedText + ']()';
+      selectionStart = selectedText.length + 4;
+      selectionEnd = selectionStart;
+    }
+    return {
+      text: text,
+      selectionStart: selectionStart,
+      selectionEnd: selectionEnd,
+      defaultSelection: 2
     };
   },
   'cge-unordered-list': function(selectedText) {
@@ -132,7 +165,7 @@ var applyEvent = function(eventType) {
     var postText = content.substring(selection[1], content.length);
 
     var newTextObj = listeners[eventType](selectedText);
-    $(textArea).val(preText + newTextObj.text + postText);
+    $(textArea)[0].value = preText + newTextObj.text + postText;
 
     // if there was something selected
     if (selection[0] < selection[1]) {
@@ -150,14 +183,32 @@ var applyEvent = function(eventType) {
   };
 };
 
+var getHotkeyFn = function(targetButton) {
+  return function() {
+    targetButton.trigger('click');
+    return false;
+  };
+};
+
 var handleCommentBoxInserted = function(box) {
+  if (box.find('.chrome-github-editor').length > 0) {
+    return;
+  }
   var content = box.find('.write-content');
   $.get(chrome.extension.getURL('/template.html'))
     .done(function(template) {
+      if (content.find('.chrome-github-editor').length > 0) {
+        return;
+      }
+      // set up click listeners
       var bar = content.prepend(template);
-      // TODO: set up click listeners here
       for (var l in listeners) {
         bar.find('.' + l).click(applyEvent(l));
+      }
+      // set up hotkeys
+      var textArea = content.find('textarea');
+      for (var h in hotkeys) {
+        textArea.on('keydown', null, h, getHotkeyFn(bar.find('.' + hotkeys[h])));
       }
     });
 };
@@ -175,7 +226,7 @@ var observer = new MutationObserver(function(mutations) {
     if (newNodes !== null) { // If there are new nodes added
       var $nodes = $(newNodes); // jQuery set
       var $node = $nodes.find('.previewable-comment-form');
-      if ($node) {
+      if ($node.length > 0) {
         handleMultipleBoxesInserted($node);
       }
     }
@@ -197,7 +248,12 @@ var init = function() {
   });
 
   // register the comment forms pre-loaded in the page
-  handleMultipleBoxesInserted($('.timeline-comment-wrapper .previewable-comment-form'));
+  handleMultipleBoxesInserted($(
+    '#files .previewable-comment-form, ' +
+    '#all_commit_comments .timeline-comment-wrapper .previewable-comment-form, ' +
+    '.discussion-timeline-actions .previewable-comment-form, ' +
+    '.discussion-item-body .previewable-comment-form'
+  ));
 };
 
 chrome.runtime.onMessage.addListener(

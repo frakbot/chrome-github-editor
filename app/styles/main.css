@@ -10,3 +10,15 @@
   font-weight: normal;
   font-style: normal;
 }
+
+.fa-heading-1:before {
+    content: "\f1dc 1";
+}
+
+.fa-heading-2:before {
+    content: "\f1dc 2";
+}
+
+.fa-heading-3:before {
+    content: "\f1dc 3";
+}

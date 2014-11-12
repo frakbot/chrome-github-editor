@@ -36,6 +36,7 @@
       ],
       "js": [
         "bower_components/jquery/dist/jquery.min.js",
+        "bower_components/jquery.hotkeys/jquery.hotkeys.js",
         "scripts/contentscript.js"
       ],
       "run_at": "document_idle",
