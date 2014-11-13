@@ -194,7 +194,12 @@ var handleCommentBoxInserted = function(box) {
   if (box.find('.chrome-github-editor').length > 0) {
     return;
   }
-  var content = box.find('.write-content');
+  var content = box.find(
+    // only visible comment areas (avoid the hidden one that will be clones)
+    '.write-content:visible, ' +
+    '.inline-comment-form-container.open .write-content, '+
+    'form.js-comment-update'
+  );
   $.get(chrome.extension.getURL('/template.html'))
     .done(function(template) {
       if (content.find('.chrome-github-editor').length > 0) {
@@ -224,8 +229,11 @@ var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
     var newNodes = mutation.addedNodes; // DOM NodeList
     if (newNodes !== null) { // If there are new nodes added
-      var $nodes = $(newNodes); // jQuery set
-      var $node = $nodes.find('.previewable-comment-form');
+      var $nodes = $(newNodes);
+      var $node = $nodes.find(
+        '.previewable-comment-form, ' +     // regular comments (new replies)
+        'div.comment-content'               // potential comment edits
+      );
       if ($node.length > 0) {
         handleMultipleBoxesInserted($node);
       }
@@ -240,7 +248,8 @@ var config = {
 };
 
 var init = function() {
-  var targets = $('.commentable, .timeline-comment');
+  // watch the whole GitHub dynamic container
+  var targets = $('.repo-container');
   // watch for comment forms additions
   targets.each(function(index, target) {
     // Pass in the target node, as well as the observer options
@@ -249,10 +258,8 @@ var init = function() {
 
   // register the comment forms pre-loaded in the page
   handleMultipleBoxesInserted($(
-    '#files .previewable-comment-form, ' +
-    '#all_commit_comments .timeline-comment-wrapper .previewable-comment-form, ' +
-    '.discussion-timeline-actions .previewable-comment-form, ' +
-    '.discussion-item-body .previewable-comment-form'
+    '.previewable-comment-form, ' +     // regular comments (new replies)
+    'div.comment-content'               // potential comment edits
   ));
 };
 
