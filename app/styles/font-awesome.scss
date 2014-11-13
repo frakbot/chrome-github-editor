@@ -1,0 +1,16 @@
+// chrome extension awesomeness: use extension ID absolute path (it works too!)
+$fa-font-path: "chrome-extension://__MSG_@@extension_id__/bower_components/font-awesome/fonts" !default;
+
+@import "../bower_components/font-awesome/scss/font-awesome";
+
+.fa-heading-1:before {
+    content: "\f1dc 1";
+}
+
+.fa-heading-2:before {
+    content: "\f1dc 2";
+}
+
+.fa-heading-3:before {
+    content: "\f1dc 3";
+}

@@ -49,6 +49,13 @@ module.exports = function (grunt) {
           livereload: true
         }
       },
+      compass: {
+        files: ['<%= config.app %>/styles/{,*/}*.scss'],
+        tasks: ['compass'],
+        options: {
+          livereload: true
+        }
+      },
       livereload: {
         options: {
           livereload: '<%= connect.options.livereload %>'
@@ -226,6 +233,14 @@ module.exports = function (grunt) {
     //   dist: {}
     // },
 
+    compass: {
+      dist: {
+        sassDir: '<%= config.app %>/styles',
+        cssDir: '<%= config.app %>/styles',
+        debugInfo: true
+      }
+    },
+
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
@@ -241,7 +256,7 @@ module.exports = function (grunt) {
             'styles/{,*/}*.css',
             'styles/fonts/{,*/}*.*',
             '_locales/{,*/}*.json',
-            'bower_components/font-awesome/{css,fonts}/*',
+            'bower_components/font-awesome/fonts/*',
           ]
         }]
       }
@@ -299,6 +314,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'jshint',
       'concurrent:chrome',
+      'compass',
       'connect:chrome',
       'watch'
     ]);
@@ -313,6 +329,7 @@ module.exports = function (grunt) {
     'clean:dist',
     'chromeManifest:dist',
     'useminPrepare',
+    'compass',
     'concurrent:dist',
     // No UI feature selected, cssmin task will be commented
     // 'cssmin',
