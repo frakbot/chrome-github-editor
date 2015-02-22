@@ -35,20 +35,20 @@ var genericListBuilder = function(selectedText, bulletMatch, bullet) {
 };
 
 var hotkeys = {
-  'ctrl+b': 'cge-bold',
-  'ctrl+i': 'cge-italic',
-  'ctrl+s': 'cge-strikethrough',
-  'alt+1': 'cge-h1',
-  'alt+2': 'cge-h2',
-  'alt+3': 'cge-h3',
-  'ctrl+q': 'cge-quote',
-  'ctrl+d': 'cge-code',
-  'ctrl+k': 'cge-link',
-  'ctrl+m': 'cge-image',
-  'ctrl+u': 'cge-unordered-list',
-  'ctrl+o': 'cge-ordered-list',
-  'ctrl+h': 'cge-check-list',
-  'ctrl+l': 'cge-horizontal-rule'
+  'cge-bold': ['ctrl+b', 'meta+b'],
+  'cge-italic': ['ctrl+i', 'meta+i'],
+  'cge-strikethrough': ['ctrl+s', 'meta+s'],
+  'cge-h1': ['alt+1'],
+  'cge-h2': ['alt+2'],
+  'cge-h3': ['alt+3'],
+  'cge-quote': ['ctrl+q', 'meta+q'],
+  'cge-code': ['ctrl+d', 'meta+d'],
+  'cge-link': ['ctrl+k', 'meta+k'],
+  'cge-image': ['ctrl+m', 'meta+m'],
+  'cge-unordered-list': ['ctrl+u', 'meta+u'],
+  'cge-ordered-list': ['ctrl+o', 'meta+o'],
+  'cge-check-list': ['ctrl+h', 'meta+h'],
+  'cge-horizontal-rule': ['ctrl+l', 'meta+l']
 };
 
 var listeners = {
@@ -212,8 +212,10 @@ var handleCommentBoxInserted = function(box) {
       }
       // set up hotkeys
       var textArea = content.find('textarea');
-      for (var h in hotkeys) {
-        textArea.on('keydown', null, h, getHotkeyFn(bar.find('.' + hotkeys[h])));
+      for (var fn in hotkeys) {
+        for (var key in hotkeys[fn]) {
+          textArea.on('keydown', null, hotkeys[fn][key], getHotkeyFn(bar.find('.' + fn)));
+        }
       }
     });
 };
