@@ -7,31 +7,32 @@ Chrome extension to add editor buttons to every comment input on GitHub.
 
 Supported features and hotkeys:
 
-- Bold (`CTRL+B`)
-- Italic (`CTRL+I`)
-- Strikethrough (`CTRL+S`)
+- Bold (`CTRL+B`/`⌘+B`)
+- Italic (`CTRL+I`/`⌘+I`)
+- Strikethrough (`CTRL+S`/`⌘+S`)
 - Heading 1 (`ALT+1`)
 - Heading 2 (`ALT+2`)
 - Heading 3 (`ALT+3`)
-- Quote (`CTRL+Q`)
-- Code (`CTRL+D`)
-- Link tag (`CTRL+K`)
-- Image tag (`CTRL+M`)
-- Unordered list (`CTRL+U`)
-- Ordered list (`CTRL+O`)
-- Check list (`CTRL+H`)
-- Horizontal rule (`CTRL+L`)
+- Quote (`CTRL+Q`/`⌘+Q`)
+- Code (`CTRL+D`/`⌘+D`)
+- Link tag (`CTRL+K`/`⌘+K`)
+- Image tag (`CTRL+M`/`⌘+M`)
+- Unordered list (`CTRL+U`/`⌘+U`)
+- Ordered list (`CTRL+O`/`⌘+O`)
+- Check list (`CTRL+H`/`⌘+H`)
+- Horizontal rule (`CTRL+L`/`⌘+L`)
 
 ![Chrome GitHub Editor Screenshot](raw/screenshot-2.png)
 
 ##Development
 
-You need to have NodeJS with `grunt-cli` and `bower` installed.
+You need to have NodeJS with `grunt-cli` and `bower` installed. You also need Ruby in order to compile SCSS files.
 
 ```shell
 $ npm install -g grunt-cli bower
 $ npm install
 $ bower install
+$ gem install compass
 ```
 
 To debug the application with a live reload mechanism, run:
@@ -54,7 +55,7 @@ This extension uses the following libraries and resources:
 ##License
 
 ```
-   Copyright 2014 Francesco Pontillo and Sebastiano Poggi
+   Copyright 2014-2015 Francesco Pontillo and Sebastiano Poggi
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
