@@ -179,7 +179,7 @@ var applyEvent = function(eventType) {
     }
 
     // re-focus the textarea
-    $(textArea).focus();
+    $(textArea).trigger('focusin');
   };
 };
 
@@ -197,9 +197,12 @@ var handleCommentBoxInserted = function(box) {
   var content = box.find(
     // only visible comment areas (avoid the hidden one that will be clones)
     '.write-content:visible, ' +
-    '.inline-comment-form-container.open .write-content, '+
-    'form.js-comment-update'
+    '.inline-comment-form-container.open .write-content, ' +
+    'form.js-comment-update .write-content'
   );
+  if (content.length < 0) {
+    return;
+  }
   $.get(chrome.extension.getURL('/template.html'))
     .done(function(template) {
       if (content.find('.chrome-github-editor').length > 0) {
@@ -210,8 +213,13 @@ var handleCommentBoxInserted = function(box) {
       for (var l in listeners) {
         bar.find('.' + l).click(applyEvent(l));
       }
-      // set up hotkeys
       var textArea = content.find('textarea');
+      textArea.on('focusin', function() {
+        // prevent default handling by the GitHub scripts (scrolls to top)
+        // TODO: check if previous behaviour was corrected by GitHub, then remove this and trigger 'focus' on textareas
+        return false;
+      });
+      // set up hotkeys
       for (var fn in hotkeys) {
         for (var key in hotkeys[fn]) {
           textArea.on('keydown', null, hotkeys[fn][key], getHotkeyFn(bar.find('.' + fn)));
