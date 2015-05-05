@@ -1,6 +1,9 @@
 CHANGELOG
 =========
 
+## 0.0.8 (2015-05-05)
+Fix for weird non-loading of background page
+
 ## 0.0.7 (2015-04-23)
 Fix double editors after GitHub changes
 TODO: introduce impossibility to use hotkeys after using a button without manually refocusing the textarea
